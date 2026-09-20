@@ -23,9 +23,9 @@ export function drawXpOverTime(container, transactions) {
     return;
   }
 
-  const W = 500;
-  const H = 260;
-  const PAD = { top: 20, right: 20, bottom: 50, left: 64 };
+  const W = 640;
+  const H = 340;
+  const PAD = { top: 24, right: 24, bottom: 56, left: 76 };
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
 
@@ -99,11 +99,18 @@ export function drawXpOverTime(container, transactions) {
     svg.appendChild(label);
   }
 
-  // x axis labels: show first, middle, last date
-  const labelIndices = [0, Math.floor(points.length / 2), points.length - 1];
-  for (const idx of labelIndices) {
-    const p = points[idx];
-    const x = toX(p.date);
+  // x axis labels: pick 3 evenly spaced positions across the time range,
+  // then find the closest point to each. skip any label whose x pixel is
+  // within 40px of a previously placed one to avoid overlap.
+  const timeTargets = [minDate, minDate + dateRange * 0.5, maxDate];
+  let lastLabelX = -Infinity;
+  for (const target of timeTargets) {
+    const closest = points.reduce((best, p) =>
+      Math.abs(p.date.getTime() - target) < Math.abs(best.date.getTime() - target) ? p : best
+    );
+    const x = toX(closest.date);
+    if (x - lastLabelX < 40) continue;
+    lastLabelX = x;
     svg.appendChild(createSvgEl('line', {
       x1: x, y1: PAD.top + innerH, x2: x, y2: PAD.top + innerH + 4,
       class: 'graph-axis',
@@ -113,7 +120,7 @@ export function drawXpOverTime(container, transactions) {
       'text-anchor': 'middle',
       class: 'graph-label',
     });
-    label.textContent = p.date.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+    label.textContent = closest.date.toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
     svg.appendChild(label);
   }
 
@@ -139,9 +146,9 @@ export function drawAuditRatio(container, totalUp, totalDown) {
     return;
   }
 
-  const W = 360;
-  const H = 220;
-  const PAD = { top: 20, right: 20, bottom: 60, left: 64 };
+  const W = 460;
+  const H = 300;
+  const PAD = { top: 24, right: 24, bottom: 64, left: 76 };
   const innerW = W - PAD.left - PAD.right;
   const innerH = H - PAD.top - PAD.bottom;
 

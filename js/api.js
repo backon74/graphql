@@ -32,6 +32,9 @@ export const QUERY_USER = `
     user {
       id
       login
+      firstName
+      lastName
+      email
     }
   }
 `;
@@ -79,6 +82,27 @@ export async function fetchUserData() {
 export async function fetchXpTransactions() {
   const data = await fetchGraphQL(QUERY_XP_TRANSACTIONS);
   return data.transaction;
+}
+
+// nested query with arguments: project results for pass/fail counts
+export const QUERY_RESULTS = `
+  {
+    result(
+      where: { object: { type: { _eq: "project" } } }
+      order_by: { createdAt: desc }
+    ) {
+      grade
+      createdAt
+      object {
+        name
+      }
+    }
+  }
+`;
+
+export async function fetchResults() {
+  const data = await fetchGraphQL(QUERY_RESULTS);
+  return data.result;
 }
 
 export async function fetchAuditTotals() {

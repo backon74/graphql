@@ -1,5 +1,5 @@
 import { getToken, login, logout, decodeJwtPayload } from './auth.js';
-import { fetchUserData, fetchXpTransactions, fetchAuditTotals } from './api.js';
+import { fetchUserData, fetchXpTransactions, fetchAuditTotals, fetchResults } from './api.js';
 import { drawXpOverTime, drawAuditRatio } from './graphs.js';
 
 const viewLogin = document.getElementById('view-login');
@@ -44,16 +44,34 @@ function formatXp(bytes) {
 
 async function loadProfile() {
   try {
-    const [userData, xpTransactions, auditTotals] = await Promise.all([
+    const [userData, xpTransactions, auditTotals, results] = await Promise.all([
       fetchUserData(),
       fetchXpTransactions(),
       fetchAuditTotals(),
+      fetchResults(),
     ]);
+
+    // welcome heading above cards
+    const firstName = userData.firstName
+      ? userData.firstName.charAt(0).toUpperCase() + userData.firstName.slice(1)
+      : null;
+    const displayName = firstName || userData.login;
+    document.getElementById('welcome-heading').textContent = `Welcome, ${displayName}!`;
+    document.getElementById('today-date').textContent = new Date().toLocaleDateString('en-GB', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    });
 
     // identity section
     const identityEl = document.getElementById('identity-content');
     identityEl.classList.remove('loading');
-    identityEl.innerHTML = infoRow('login', userData.login) + infoRow('id', userData.id);
+    const memberSince = xpTransactions.length > 0
+      ? new Date(xpTransactions[0].createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+      : 'n/a';
+    identityEl.innerHTML =
+      infoRow('login', userData.login) +
+      infoRow('email', userData.email) +
+      infoRow('member since', memberSince) +
+      infoRow('id', userData.id);
 
     // xp section
     const totalXp = xpTransactions.reduce((sum, t) => sum + t.amount, 0);
@@ -72,6 +90,35 @@ async function loadProfile() {
       infoRow('ratio', ratio, true) +
       infoRow('xp given', formatXp(totalUp)) +
       infoRow('xp received', formatXp(totalDown));
+
+    // projects section
+    const passed = results.filter(r => r.grade >= 1);
+    const failed = results.filter(r => r.grade === 0);
+    const passRate = results.length > 0
+      ? Math.round((passed.length / results.length) * 100)
+      : 0;
+    const recentPassed = passed.slice(0, 3);
+    const projectsEl = document.getElementById('projects-content');
+    projectsEl.classList.remove('loading');
+
+    const recentHtml = recentPassed.map(r => {
+      const date = new Date(r.createdAt).toLocaleDateString('en-GB', {
+        day: 'numeric', month: 'short', year: 'numeric',
+      });
+      return infoRow(r.object.name, date);
+    }).join('');
+
+    projectsEl.innerHTML = `
+      <div class="projects-stats">
+        ${infoRow('completed', passed.length, true)}
+        ${infoRow('failed', failed.length)}
+        ${infoRow('pass rate', `${passRate}%`)}
+      </div>
+      ${recentPassed.length > 0 ? `
+        <p class="projects-recent-label">Recently passed</p>
+        <div class="projects-recent">${recentHtml}</div>
+      ` : ''}
+    `;
 
     // graphs
     drawXpOverTime(document.getElementById('graph-xp-over-time'), xpTransactions);
@@ -145,6 +192,8 @@ logoutBtn.addEventListener('click', () => {
   document.getElementById('xp-content').classList.add('loading');
   document.getElementById('audits-content').innerHTML = 'loading...';
   document.getElementById('audits-content').classList.add('loading');
+  document.getElementById('projects-content').innerHTML = 'loading...';
+  document.getElementById('projects-content').classList.add('loading');
   document.getElementById('graph-xp-over-time').innerHTML = '';
   document.getElementById('graph-audit-ratio').innerHTML = '';
 });

@@ -8,31 +8,24 @@
 </head>
 <body>
 
+  <!-- background logos scroll with the page -->
+  <img src="images/gitlensLogo.png"  alt="" aria-hidden="true" class="bg-logo bg-logo--gitlens" />
+  <img src="images/JSLogo.jpeg"      alt="" aria-hidden="true" class="bg-logo bg-logo--js"      />
+  <img src="images/goLogo.png"       alt="" aria-hidden="true" class="bg-logo bg-logo--go"      />
+  <img src="images/rustLogo.png"     alt="" aria-hidden="true" class="bg-logo bg-logo--rust"    />
+
   <!-- login view -->
   <div id="view-login" class="view">
     <div class="login-card">
-      <h1>reboot01 profile</h1>
+      <div class="login-brand">
+        <img src="images/rebootLogo.png" alt="reboot01" class="login-logo" />
+        <span class="login-subtitle">profile</span>
+      </div>
       <form id="login-form" novalidate>
         <label for="identifier">username or email</label>
-        <input
-          id="identifier"
-          type="text"
-          name="identifier"
-          autocomplete="username"
-          required
-          placeholder="username or email"
-        />
-
+        <input id="identifier" type="text" name="identifier" autocomplete="username" required placeholder="username or email" />
         <label for="password">password</label>
-        <input
-          id="password"
-          type="password"
-          name="password"
-          autocomplete="current-password"
-          required
-          placeholder="password"
-        />
-
+        <input id="password" type="password" name="password" autocomplete="current-password" required placeholder="password" />
         <button type="submit" id="login-btn">log in</button>
         <p id="login-error" class="error-msg" aria-live="polite"></p>
       </form>
@@ -41,45 +34,83 @@
 
   <!-- profile view -->
   <div id="view-profile" class="view hidden">
-    <header class="profile-header">
-      <h1>profile</h1>
-      <button id="logout-btn">log out</button>
+
+    <header class="site-header">
+      <div class="site-header__inner">
+        <img src="images/rebootLogo.png" alt="reboot01" class="header-logo" />
+        <button id="logout-btn">log out</button>
+      </div>
     </header>
 
-    <main class="profile-main">
+    <!-- journal entry header -->
+    <div class="journal-header">
+      <div class="journal-header__inner">
+        <div class="journal-margin"></div>
+        <div class="journal-header__content">
+          <span id="today-date" class="journal-date"></span>
+          <h1 id="welcome-heading" class="journal-title">Welcome!</h1>
+        </div>
+        <div class="journal-header__aside">
+          <img src="images/graphqlLogo.png" alt="GraphQL" class="journal-gql-logo" />
+        </div>
+      </div>
+    </div>
 
-      <!-- section 1: identity -->
-      <section id="section-identity" class="card">
-        <h2>identity</h2>
-        <div id="identity-content" class="loading">loading...</div>
-      </section>
+    <main class="page-body">
 
-      <!-- section 2: xp -->
-      <section id="section-xp" class="card">
-        <h2>xp</h2>
-        <div id="xp-content" class="loading">loading...</div>
-      </section>
-
-      <!-- section 3: audits -->
-      <section id="section-audits" class="card">
-        <h2>audits</h2>
-        <div id="audits-content" class="loading">loading...</div>
-      </section>
-
-      <!-- section 4: statistics (graphs) -->
-      <section id="section-statistics" class="card card-wide">
-        <h2>statistics</h2>
-        <div class="graphs-container">
-          <div class="graph-wrap">
-            <h3>xp over time</h3>
-            <div id="graph-xp-over-time"></div>
+      <!-- strip 1: identity / xp / audits -->
+      <div class="page-strip">
+        <div class="strip-margin">
+          <span class="strip-num">01</span>
+        </div>
+        <div class="strip-content three-col">
+          <div class="col">
+            <p class="col-heading">Identity</p>
+            <div id="identity-content" class="loading">loading...</div>
           </div>
-          <div class="graph-wrap">
-            <h3>audit ratio</h3>
-            <div id="graph-audit-ratio"></div>
+          <div class="col-rule"></div>
+          <div class="col">
+            <p class="col-heading">Xp</p>
+            <div id="xp-content" class="loading">loading...</div>
+          </div>
+          <div class="col-rule"></div>
+          <div class="col">
+            <p class="col-heading">Audits</p>
+            <div id="audits-content" class="loading">loading...</div>
           </div>
         </div>
-      </section>
+      </div>
+
+      <!-- strip 2: projects -->
+      <div class="page-strip">
+        <div class="strip-margin">
+          <span class="strip-num">02</span>
+        </div>
+        <div class="strip-content">
+          <p class="col-heading">Projects</p>
+          <div id="projects-content" class="loading">loading...</div>
+        </div>
+      </div>
+
+      <!-- strip 3: statistics -->
+      <div class="page-strip">
+        <div class="strip-margin">
+          <span class="strip-num">03</span>
+        </div>
+        <div class="strip-content">
+          <p class="col-heading">Statistics</p>
+          <div class="graphs-container">
+            <div class="graph-wrap">
+              <p class="graph-heading">Xp over time</p>
+              <div id="graph-xp-over-time"></div>
+            </div>
+            <div class="graph-wrap">
+              <p class="graph-heading">Audit ratio</p>
+              <div id="graph-audit-ratio"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </main>
   </div>

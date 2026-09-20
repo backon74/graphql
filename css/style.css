@@ -233,6 +233,63 @@ button:disabled {
   color: var(--accent);
 }
 
+/* ── graphs ── */
+
+.graphs-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 32px;
+}
+
+.graph-wrap {
+  min-width: 0;
+}
+
+svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.graph-axis {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.graph-line {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.graph-area {
+  fill: var(--accent);
+  opacity: 0.12;
+}
+
+.graph-label {
+  fill: var(--text-muted);
+  font-family: var(--font);
+  font-size: 11px;
+}
+
+.graph-title-label {
+  fill: var(--text);
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.bar-given {
+  fill: var(--accent);
+}
+
+.bar-received {
+  fill: var(--accent2);
+}
+
 /* ── responsive ── */
 
 @media (max-width: 600px) {

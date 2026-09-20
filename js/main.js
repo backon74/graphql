@@ -1,5 +1,6 @@
 import { getToken, login, logout, decodeJwtPayload } from './auth.js';
 import { fetchUserData, fetchXpTransactions, fetchAuditTotals } from './api.js';
+import { drawXpOverTime, drawAuditRatio } from './graphs.js';
 
 const viewLogin = document.getElementById('view-login');
 const viewProfile = document.getElementById('view-profile');
@@ -71,6 +72,10 @@ async function loadProfile() {
       infoRow('ratio', ratio, true) +
       infoRow('xp given', formatXp(totalUp)) +
       infoRow('xp received', formatXp(totalDown));
+
+    // graphs
+    drawXpOverTime(document.getElementById('graph-xp-over-time'), xpTransactions);
+    drawAuditRatio(document.getElementById('graph-audit-ratio'), totalUp, totalDown);
 
   } catch (err) {
     // if the token is rejected by the api, fall back to login

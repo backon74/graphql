@@ -1,10 +1,12 @@
 import { getToken, login, logout, decodeJwtPayload } from './auth.js';
+import { fetchUserData, fetchXpTransactions, fetchAuditTotals } from './api.js';
 
 const viewLogin = document.getElementById('view-login');
 const viewProfile = document.getElementById('view-profile');
 const loginForm = document.getElementById('login-form');
 const loginError = document.getElementById('login-error');
 const loginBtn = document.getElementById('login-btn');
+const logoutBtn = document.getElementById('logout-btn');
 
 function showLogin() {
   viewLogin.classList.remove('hidden');
@@ -24,7 +26,64 @@ function clearError() {
   loginError.textContent = '';
 }
 
-function init() {
+function infoRow(label, value, big = false) {
+  return `
+    <div class="info-row">
+      <span class="info-label">${label}</span>
+      <span class="info-value${big ? ' big' : ''}">${value}</span>
+    </div>
+  `;
+}
+
+function formatXp(bytes) {
+  if (bytes >= 1_000_000) return `${(bytes / 1_000_000).toFixed(2)} MB`;
+  if (bytes >= 1_000) return `${(bytes / 1_000).toFixed(1)} kB`;
+  return `${bytes} B`;
+}
+
+async function loadProfile() {
+  try {
+    const [userData, xpTransactions, auditTotals] = await Promise.all([
+      fetchUserData(),
+      fetchXpTransactions(),
+      fetchAuditTotals(),
+    ]);
+
+    // identity section
+    const identityEl = document.getElementById('identity-content');
+    identityEl.classList.remove('loading');
+    identityEl.innerHTML = infoRow('login', userData.login) + infoRow('id', userData.id);
+
+    // xp section
+    const totalXp = xpTransactions.reduce((sum, t) => sum + t.amount, 0);
+    const xpEl = document.getElementById('xp-content');
+    xpEl.classList.remove('loading');
+    xpEl.innerHTML =
+      infoRow('total xp', formatXp(totalXp), true) +
+      infoRow('transactions', xpTransactions.length);
+
+    // audits section
+    const { totalUp, totalDown } = auditTotals;
+    const ratio = totalDown > 0 ? (totalUp / totalDown).toFixed(2) : 'n/a';
+    const auditsEl = document.getElementById('audits-content');
+    auditsEl.classList.remove('loading');
+    auditsEl.innerHTML =
+      infoRow('ratio', ratio, true) +
+      infoRow('xp given', formatXp(totalUp)) +
+      infoRow('xp received', formatXp(totalDown));
+
+  } catch (err) {
+    // if the token is rejected by the api, fall back to login
+    if (err.message.includes('401') || err.message.toLowerCase().includes('jwt') || err.message.toLowerCase().includes('unauthorized')) {
+      logout();
+      showLogin();
+    } else {
+      console.error('failed to load profile:', err);
+    }
+  }
+}
+
+async function init() {
   const token = getToken();
   if (token) {
     try {
@@ -35,6 +94,7 @@ function init() {
       return;
     }
     showProfile();
+    await loadProfile();
   } else {
     showLogin();
   }
@@ -58,12 +118,30 @@ loginForm.addEventListener('submit', async (e) => {
   try {
     await login(identifier, password);
     showProfile();
+    await loadProfile();
   } catch (err) {
     setError(err.message || 'login failed, check your credentials');
   } finally {
     loginBtn.disabled = false;
     loginBtn.textContent = 'log in';
   }
+});
+
+logoutBtn.addEventListener('click', () => {
+  logout();
+  showLogin();
+  loginForm.reset();
+  clearError();
+
+  // reset profile content to loading state for next login
+  document.getElementById('identity-content').innerHTML = 'loading...';
+  document.getElementById('identity-content').classList.add('loading');
+  document.getElementById('xp-content').innerHTML = 'loading...';
+  document.getElementById('xp-content').classList.add('loading');
+  document.getElementById('audits-content').innerHTML = 'loading...';
+  document.getElementById('audits-content').classList.add('loading');
+  document.getElementById('graph-xp-over-time').innerHTML = '';
+  document.getElementById('graph-audit-ratio').innerHTML = '';
 });
 
 init();

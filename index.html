@@ -39,8 +39,50 @@
     </div>
   </div>
 
-  <!-- profile view (empty for now) -->
-  <div id="view-profile" class="view hidden"></div>
+  <!-- profile view -->
+  <div id="view-profile" class="view hidden">
+    <header class="profile-header">
+      <h1>profile</h1>
+      <button id="logout-btn">log out</button>
+    </header>
+
+    <main class="profile-main">
+
+      <!-- section 1: identity -->
+      <section id="section-identity" class="card">
+        <h2>identity</h2>
+        <div id="identity-content" class="loading">loading...</div>
+      </section>
+
+      <!-- section 2: xp -->
+      <section id="section-xp" class="card">
+        <h2>xp</h2>
+        <div id="xp-content" class="loading">loading...</div>
+      </section>
+
+      <!-- section 3: audits -->
+      <section id="section-audits" class="card">
+        <h2>audits</h2>
+        <div id="audits-content" class="loading">loading...</div>
+      </section>
+
+      <!-- section 4: statistics (graphs) -->
+      <section id="section-statistics" class="card card-wide">
+        <h2>statistics</h2>
+        <div class="graphs-container">
+          <div class="graph-wrap">
+            <h3>xp over time</h3>
+            <div id="graph-xp-over-time"></div>
+          </div>
+          <div class="graph-wrap">
+            <h3>audit ratio</h3>
+            <div id="graph-audit-ratio"></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
 
   <script type="module" src="js/main.js"></script>
 </body>
